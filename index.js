@@ -1,11 +1,8 @@
 
-
-
-
 const express = require("express");
-
 const app = express();
 const port = 3000;
+
 
 const airlines = [
 
@@ -63,15 +60,11 @@ const airlines = [
   ];
   
   function generateRandomFlight() {
+    const shuffledAirlines = airlines.sort(() => Math.random() - 0.5);
     const flights = [];
-    const availableIndexes = airlines.map((_, index) => index);
   
-    while (flights.length < 10 && availableIndexes.length > 0) {
-      const randomIndex = Math.floor(Math.random() * availableIndexes.length);
-      const selectedIndex = availableIndexes[randomIndex];
-  
-      availableIndexes.splice(randomIndex, 1);
-      const randomAirline = airlines[selectedIndex];
+    for (let i = 0; i < Math.min(10, shuffledAirlines.length); i++) {
+      const randomAirline = shuffledAirlines[i];
   
       flights.push({
         flightName: randomAirline.Name,
@@ -88,6 +81,9 @@ const airlines = [
   
     return flights;
   }
+  
+
+
 app.get("/api/flightsDeparture", function(req, res) {
   const flights = generateRandomFlight();
   res.json(flights);
