@@ -1,5 +1,6 @@
 
 const express = require("express");
+const chance = require("chance")
 const app = express();
 const port = 3000;
 
@@ -58,8 +59,43 @@ const airlines = [
     }
     
   ];
+
+
+  const cityNames = [
+    "Delhi",
+    "New York",
+    "Los Angeles",
+    "London",
+    "Paris",
+    "Tokyo",
+    "Sydney",
+    "Berlin",
+    "Toronto",
+    "Mumbai",
+    "Rome",
+    "Dubai"
+    // Add more city names here
+  ];
+
+  function getRandomCity() {
+    const randomIndex = Math.floor(Math.random() * cityNames.length);
+    return cityNames[randomIndex];
+  }
+
+  function generateRandomFlightNumber(airlineName) {
+    const airlineCode = airlineName
+      .split(" ")
+      .map(word => word[0])
+      .join("")
+      .toUpperCase();
   
-  function generateRandomFlight() {
+    const randomDigits = Math.floor(Math.random() * 10000).toString().padStart(4, "0");
+  
+    const flightNumber = `${airlineCode} ${randomDigits}`;
+    return flightNumber;
+  }
+  
+  function generateRandomFlightArrival() {
     const shuffledAirlines = airlines.sort(() => Math.random() - 0.5);
     const flights = [];
   
@@ -68,13 +104,14 @@ const airlines = [
   
       flights.push({
         flightName: randomAirline.Name,
+        flightNumber:generateRandomFlightNumber(randomAirline.Name),
         image: randomAirline.Image,
         carrier: randomAirline.Name,
-        origin: "Dubai",
+        origin: getRandomCity(),
         via: "-",
         time: `${Math.floor(Math.random() * 24)}:${Math.floor(Math.random() * 60)}`,
         terminal: Math.floor(Math.random() * 3) + 1,
-        belt: Math.floor(Math.random() * 20) + 1,
+        belt: Math.floor(Math.random() * 15) + 1,
         status: ["On Time", "Delayed", "Boarding"][Math.floor(Math.random() * 3)],
       });
     }
@@ -83,14 +120,38 @@ const airlines = [
   }
   
 
+  function generateRandomFlightDeparture() {
+    const shuffledAirlines = airlines.sort(() => Math.random() - 0.5);
+    const flights = [];
+  
+    for (let i = 0; i < Math.min(10, shuffledAirlines.length); i++) {
+      const randomAirline = shuffledAirlines[i];
+  
+      flights.push({
+        flightName: randomAirline.Name,
+        flightNumber:generateRandomFlightNumber(randomAirline.Name),
+        image: randomAirline.Image,
+        carrier: randomAirline.Name,
+        destination:  getRandomCity(),
+        via: "-",
+        time: `${Math.floor(Math.random() * 24)}:${Math.floor(Math.random() * 60)}`,
+        terminal: Math.floor(Math.random() * 3) + 1,
+        gate: Math.floor(Math.random() * 15) + 1,
+        status: ["On Time", "Delayed", "Boarding","Check In Open"][Math.floor(Math.random() * 3)],
+      });
+    }
+  
+    return flights;
+  }
+
 
 app.get("/api/flightsDeparture", function(req, res) {
-  const flights = generateRandomFlight();
+  const flights = generateRandomFlightDeparture();
   res.json(flights);
 });
 
 app.get("/api/flightsArrival", function(req, res) {
-  const flights = generateRandomFlight();
+  const flights = generateRandomFlightArrival();
   res.json(flights);
 });
 
