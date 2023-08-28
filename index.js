@@ -9,6 +9,9 @@ const connectionString =
 const flightDepartureModel = require("./model/flightDepartureModel");
 const flightArrivalModel = require("./model/flightArrivalModel");
 const { DateTime } = require("luxon");
+
+
+
 mongoose
   .connect(connectionString, {
     useNewUrlParser: true,
@@ -86,6 +89,11 @@ const cityNames = [
   // Add more city names here
 ];
 
+
+
+
+
+
 function getRandomCity() {
   const randomIndex = Math.floor(Math.random() * cityNames.length);
   return cityNames[randomIndex];
@@ -142,6 +150,7 @@ function generateRandomFlightArrival() {
     const now = DateTime.local(); // Get the current local time
     const scheduledTime = now.plus({ minutes: Math.floor(Math.random() * 180) }); // Generate a random scheduled time within the next 3 hours
     flights.push({
+      
       flightName: randomAirline.Name,
       flightNumber: generateRandomFlightNumber(randomAirline.Name),
       image: randomAirline.Image,
@@ -171,6 +180,7 @@ function generateRandomFlightDeparture() {
       minutes: Math.floor(Math.random() * 180),
     }); // Generate a random scheduled time within the next 3 hours
     flights.push({
+     
       flightName: randomAirline.Name,
       flightNumber: generateRandomFlightNumber(randomAirline.Name),
       image: randomAirline.Image,
@@ -187,27 +197,89 @@ function generateRandomFlightDeparture() {
 }
 
 app.get("/api/flightsDeparture", async function (req, res) {
+
+  const userId =req.ip
+  
+  
+
+  const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+
+  // Check if we already have data generated within the last 30 minutes for this user
+  const recentData = await flightDepartureModel.find({
+    user:userId,
+    createdAt: { $gte: thirtyMinutesAgo }
+  });
+
+  
+
+  if (recentData && recentData.length > 0) {
+    // If we have recent data, return that
+    console.log("recentData has sent ")
+    return res.status(200).json(recentData);
+  }
+
+  // If not, generate new data
   const flights = generateRandomFlightDeparture();
 
-  const dbData = await flightDepartureModel.create(flights);
-  if (!dbData) {
+
+  
+
+  const dbData ={
+    user:userId,
+    data:flights
+  }
+
+  const dbEntry = await flightDepartureModel.create(dbData);
+  if (!dbEntry) {
     return res
       .status(400)
       .json({ success: true, message: `error in data creation` });
   }
 
-  res.status(200).json(dbData);
+  res.status(200).json(dbEntry);
 });
 
+
+
 app.get("/api/flightsArrival", async function (req, res) {
+
+
+  const userId =req.ip
+  const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+
+  // Check if we already have data generated within the last 30 minutes for this user
+  const recentData = await flightArrivalModel.find({
+    user:userId,
+    createdAt: { $gte: thirtyMinutesAgo }
+  });
+
+  
+
+  if (recentData && recentData.length > 0) {
+    // If we have recent data, return that
+    console.log("recentData has sent ")
+    return res.status(200).json(recentData);
+  }
+
+  // If not, generate new data
   const flights = generateRandomFlightArrival();
-  const dbData = await flightArrivalModel.create(flights);
-  if (!dbData) {
+
+
+  
+
+  const dbData ={
+    user:userId,
+    data:flights
+  }
+
+  const dbEntry = await flightArrivalModel.create(dbData);
+  if (!dbEntry) {
     return res
       .status(400)
       .json({ success: true, message: `error in data creation` });
   }
-  res.status(200).json(dbData);
+
+  res.status(200).json(dbEntry);
 });
 
 app.listen(port, function () {
