@@ -160,7 +160,7 @@ function generateRandomFlightArrival() {
       time: scheduledTime.toFormat("HH:mm"), // Generate a time based on the scheduled time        terminal: Math.floor(Math.random() * 3) + 1,
       terminal: Math.floor(Math.random() * 3) + 1,
       belt: Math.floor(Math.random() * 15) + 1,
-      status: calculateStatusForArrival(now, scheduledTime),
+      status: calculateStatusForArrival(scheduledTime, now),
     });
   }
 
@@ -210,12 +210,13 @@ app.get("/api/flightsDeparture", async function (req, res) {
     createdAt: { $gte: thirtyMinutesAgo }
   });
 
-  
+  const dataToSend =recentData[0].data
+
 
   if (recentData && recentData.length > 0) {
     // If we have recent data, return that
     console.log("recentData has sent ")
-    return res.status(200).json(recentData);
+    return res.status(200).json(dataToSend);
   }
 
   // If not, generate new data
@@ -253,12 +254,12 @@ app.get("/api/flightsArrival", async function (req, res) {
     createdAt: { $gte: thirtyMinutesAgo }
   });
 
-  
+  const dataToSend =recentData[0].data
 
   if (recentData && recentData.length > 0) {
     // If we have recent data, return that
     console.log("recentData has sent ")
-    return res.status(200).json(recentData);
+    return res.status(200).json(dataToSend);
   }
 
   // If not, generate new data
