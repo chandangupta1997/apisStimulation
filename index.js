@@ -4,13 +4,11 @@ const app = express();
 const port = 3000;
 const mongoose = require("mongoose");
 const connectionString =
-  "mongodb+srv://chandan:Chandan%40q23@cluster0.nrci4xc.mongodb.net/flightData?retryWrites=true&w=majority";
+  "mongodb://localhost:27017";
 
 const flightDepartureModel = require("./model/flightDepartureModel");
 const flightArrivalModel = require("./model/flightArrivalModel");
 const { DateTime } = require("luxon");
-
-
 
 mongoose
   .connect(connectionString, {
@@ -89,11 +87,6 @@ const cityNames = [
   // Add more city names here
 ];
 
-
-
-
-
-
 function getRandomCity() {
   const randomIndex = Math.floor(Math.random() * cityNames.length);
   return cityNames[randomIndex];
@@ -143,26 +136,33 @@ function calculateStatusForArrival(scheduledTime, now) {
 function generateRandomFlightArrival() {
   const shuffledAirlines = airlines.sort(() => Math.random() - 0.5);
   const flights = [];
- 
+
   for (let i = 0; i < Math.min(10, shuffledAirlines.length); i++) {
     const randomAirline = shuffledAirlines[i];
-    
+
     const now = DateTime.local(); // Get the current local time
-    const scheduledTime = now.plus({ minutes: Math.floor(Math.random() * 180) }); // Generate a random scheduled time within the next 3 hours
+    const scheduledTime = now.plus({
+      minutes: Math.floor(Math.random() * 180),
+    }); // Generate a random scheduled time within the next 3 hours
     flights.push({
-      
-      flightName: randomAirline.Name,
-      flightNumber: generateRandomFlightNumber(randomAirline.Name),
-      image: randomAirline.Image,
+      logonumber: {
+        src: randomAirline.Image,
+        number: generateRandomFlightNumber(randomAirline.Name),
+      },
+
       carrier: randomAirline.Name,
       origin: getRandomCity(),
-      via: "-",
+      via: "--",
       time: scheduledTime.toFormat("HH:mm"), // Generate a time based on the scheduled time        terminal: Math.floor(Math.random() * 3) + 1,
       terminal: Math.floor(Math.random() * 3) + 1,
       belt: Math.floor(Math.random() * 15) + 1,
       status: calculateStatusForArrival(scheduledTime, now),
     });
+
+
   }
+
+  console.log(flights)
 
   return flights;
 }
@@ -180,13 +180,14 @@ function generateRandomFlightDeparture() {
       minutes: Math.floor(Math.random() * 180),
     }); // Generate a random scheduled time within the next 3 hours
     flights.push({
-     
-      flightName: randomAirline.Name,
-      flightNumber: generateRandomFlightNumber(randomAirline.Name),
-      image: randomAirline.Image,
+
+      logonumber: {
+        src: randomAirline.Image,
+        number: generateRandomFlightNumber(randomAirline.Name),
+      },
       carrier: randomAirline.Name,
       destination: getRandomCity(),
-      via: "-",
+      via: "--",
       time: scheduledTime.toFormat("HH:mm"), // Generate a time based on the scheduled time        terminal: Math.floor(Math.random() * 3) + 1,
       gate: Math.floor(Math.random() * 15) + 1,
       status: calculateStatusForDeparture(scheduledTime, now), // Calculate status based on scheduled and current local time
@@ -197,38 +198,30 @@ function generateRandomFlightDeparture() {
 }
 
 app.get("/api/flightsDeparture", async function (req, res) {
-
-  const userId =req.ip
-  
-  
+  const userId = req.ip;
 
   const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
 
   // Check if we already have data generated within the last 30 minutes for this user
   const recentData = await flightDepartureModel.find({
-    user:userId,
-    createdAt: { $gte: thirtyMinutesAgo }
+    user: userId,
+    createdAt: { $gte: thirtyMinutesAgo },
   });
-
-  const dataToSend =recentData[0].data
-
 
   if (recentData && recentData.length > 0) {
     // If we have recent data, return that
-    console.log("recentData has sent ")
+    console.log("recentData has sent ");
+    const dataToSend = recentData[0].data;
     return res.status(200).json(dataToSend);
   }
 
   // If not, generate new data
   const flights = generateRandomFlightDeparture();
 
-
-  
-
-  const dbData ={
-    user:userId,
-    data:flights
-  }
+  const dbData = {
+    user: userId,
+    data: flights,
+  };
 
   const dbEntry = await flightDepartureModel.create(dbData);
   if (!dbEntry) {
@@ -237,41 +230,40 @@ app.get("/api/flightsDeparture", async function (req, res) {
       .json({ success: true, message: `error in data creation` });
   }
 
-  res.status(200).json(dbEntry);
+  res.status(200).json(dbEntry.data);
 });
 
-
-
 app.get("/api/flightsArrival", async function (req, res) {
-
-
-  const userId =req.ip
+ try {
+  
+  const userId = req.ip;
   const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
 
   // Check if we already have data generated within the last 30 minutes for this user
   const recentData = await flightArrivalModel.find({
-    user:userId,
-    createdAt: { $gte: thirtyMinutesAgo }
+    user: userId,
+    createdAt: { $gte: thirtyMinutesAgo },
   });
 
-  const dataToSend =recentData[0].data
+  console.log(recentData);
 
   if (recentData && recentData.length > 0) {
     // If we have recent data, return that
-    console.log("recentData has sent ")
+    const dataToSend = recentData[0].data;
+
+    console.log("recentData has sent ");
     return res.status(200).json(dataToSend);
   }
 
   // If not, generate new data
   const flights = generateRandomFlightArrival();
 
+  const dbData = {
+    user: userId,
+    data: flights,
+  };
 
-  
-
-  const dbData ={
-    user:userId,
-    data:flights
-  }
+  //console.log(dbData[0].logonumber)
 
   const dbEntry = await flightArrivalModel.create(dbData);
   if (!dbEntry) {
@@ -280,7 +272,12 @@ app.get("/api/flightsArrival", async function (req, res) {
       .json({ success: true, message: `error in data creation` });
   }
 
-  res.status(200).json(dbEntry);
+  res.status(200).json(dbEntry.data);
+ } catch (error) {
+
+  res.status(500).send(error.message)
+  
+ }
 });
 
 app.listen(port, function () {

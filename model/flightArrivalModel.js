@@ -9,15 +9,20 @@ const flightSchema = new mongoose.Schema(
     data: {
       type: [
         {
-          userId: {
-            type: String,
+          logonumber: {
+            src: {
+              type: String,
+              required: true,
+            }, // Source for the logonumber
+            number: {
+              type: String,
+              required: true,
+            }, // The logonumber itself
           },
-          flightName: { type: String, required: true },
-          flightNumber: { type: String, required: true },
-          image: { type: String, required: true },
+
           carrier: { type: String, required: true },
           origin: { type: String, required: true },
-          via: { type: String, default: "-" },
+          via: { type: String, default: "--" },
           time: { type: String, required: true },
           terminal: { type: Number },
           belt: { type: Number },

@@ -1,0 +1,55 @@
+[
+  {
+    "logonumber": { "src": "sa.png", "number": "SG 9366" },
+    "carrier": "Spice Jet",
+    "origin": "Raipur",
+    "via": "--",
+    "time": "21:12",
+    "terminal": "T3",
+    "belt": 2,
+    "status": "Delayed"
+  },
+
+  {
+    "logonumber": {
+        "src": "https://c.ekstatic.net/ecl/logos/emirates/emirates-logo-badge.png",
+        "number": "E 9663"
+    },
+    "carrier": "Emirates",
+    "origin": "Rome",
+    "via": "--",
+    "time": "17:01",
+    "terminal": 3,
+    "belt": 12,
+    "status": "Scheduled",
+    "_id": "65003dcb5955c4e23208f703"
+},
+
+  {
+    "logoNumber": {
+      "src":"",
+      "number": "ANA 8947"
+    },
+    "carrier": "All Nippon Airways",   
+    "origin": "Mumbai",
+    "via": "--",
+    "time": "14:57",
+    "terminal": "2",
+    "belt": 11,
+    "status": "Delayed"
+  },
+
+  {
+    "flightName": "Qatar Airways ",
+    "flightNumber": "QA 3124",
+    "image": "https://www.qatarairways.com/content/dam/qatar/images/qr-official-logo.png",
+    "carrier": "Qatar Airways ",
+    "origin": "Tokyo",
+    "via": "-",
+    "time": "13:57",
+    "terminal": 3,
+    "belt": 5,
+    "status": "Delayed",
+    "_id": "650016eeb0d12bef1f814dce"
+  }
+]

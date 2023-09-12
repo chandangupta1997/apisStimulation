@@ -7,12 +7,17 @@ const flightSchema = new mongoose.Schema(
     data: {
       type: [
         {
-          userId: {
-            type: String,
+          logonumber: {
+            src: {
+              type: String,
+              required: true,
+            }, // Source for the logonumber
+            number: {
+              type: String,
+              required: true,
+            }, // The logonumber itself
           },
-          flightName: { type: String, required: true },
-          flightNumber: { type: String, required: true },
-          image: { type: String, required: true },
+
           carrier: { type: String, required: true },
           destination: { type: String, required: true },
           via: { type: String, default: "-" },
