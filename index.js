@@ -162,7 +162,7 @@ function generateRandomFlightArrival() {
 
   }
 
-  console.log(flights)
+  
 
   return flights;
 }
@@ -210,7 +210,7 @@ app.get("/api/flightsDeparture", async function (req, res) {
 
   if (recentData && recentData.length > 0) {
     // If we have recent data, return that
-    console.log("recentData has sent ");
+    
     const dataToSend = recentData[0].data;
     return res.status(200).json(dataToSend);
   }
@@ -245,13 +245,13 @@ app.get("/api/flightsArrival", async function (req, res) {
     createdAt: { $gte: thirtyMinutesAgo },
   });
 
-  console.log(recentData);
+  
 
   if (recentData && recentData.length > 0) {
     // If we have recent data, return that
     const dataToSend = recentData[0].data;
 
-    console.log("recentData has sent ");
+   
     return res.status(200).json(dataToSend);
   }
 
@@ -263,7 +263,7 @@ app.get("/api/flightsArrival", async function (req, res) {
     data: flights,
   };
 
-  //console.log(dbData[0].logonumber)
+
 
   const dbEntry = await flightArrivalModel.create(dbData);
   if (!dbEntry) {
